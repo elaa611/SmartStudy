@@ -40,6 +40,27 @@ class _PlanScreenState extends State<PlanScreen> {
         ),
         centerTitle: true,
       ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Study Planner',
+              style: TextStyle(
+                fontSize: 36,
+                height: 1.1,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF002B5B),
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              ''
+            ),
+          ]
+        ),
+      ),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
