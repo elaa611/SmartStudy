@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'qa_play_screen.dart';
 
-/// Modèle simple pour représenter une matière (identique aux autres écrans "generate_*")
 class Matiere {
   final int id;
   final String nom;
@@ -17,10 +16,9 @@ class Matiere {
   });
 }
 
-/// Modèle pour représenter un document/cours sélectionnable
 class Cours {
-  final String id; // uuid de documents.id
-  final String nom; // documents.file_name
+  final String id; 
+  final String nom; 
   final String extension;
   final String extractionStatus;
 
@@ -48,17 +46,14 @@ class _GenerateQAScreenState extends State<GenerateQAScreen> {
 
   final supabase = Supabase.instance.client;
 
-  // ---- Étape "matières" ----
   final List<Matiere> _matieres = [];
   Matiere? _matiereSelectionnee;
   bool _chargementMatieres = true;
 
-  // ---- Étape "cours" (dépend de la matière choisie) ----
   final List<Cours> _cours = [];
   final Set<String> _coursSelectionnes = {}; // ids des documents cochés
   bool _chargementCours = false;
 
-  // ---- Paramètres du Q/A ----
   int _nbQuestions = 10;
 
   bool _generationEnCours = false;
@@ -69,9 +64,7 @@ class _GenerateQAScreenState extends State<GenerateQAScreen> {
     _chargerMatieres();
   }
 
-  // ============================================================
   // ÉTAPE 1 : charger les matières de l'utilisateur
-  // ============================================================
   Future<void> _chargerMatieres() async {
     final user = supabase.auth.currentUser;
     if (user == null) return;
@@ -100,11 +93,7 @@ class _GenerateQAScreenState extends State<GenerateQAScreen> {
     });
   }
 
-  // ============================================================
   // ÉTAPE 2 : quand l'utilisateur choisit une matière -> charger SES cours
-  // On ne prend que les documents dont l'extraction du texte est terminée
-  // (extraction_status = 'completed'), car l'IA a besoin du texte, pas du PDF brut.
-  // ============================================================
   Future<void> _selectionnerMatiere(Matiere matiere) async {
     final user = supabase.auth.currentUser;
     if (user == null) return;
@@ -151,9 +140,7 @@ class _GenerateQAScreenState extends State<GenerateQAScreen> {
     });
   }
 
-  // ============================================================
   // ÉTAPE 3 : appeler l'Edge Function Supabase pour générer le Q/A
-  // ============================================================
   Future<void> _genererQA() async {
     if (_matiereSelectionnee == null) {
       _showError('Choisis une matière');
@@ -209,9 +196,7 @@ class _GenerateQAScreenState extends State<GenerateQAScreen> {
     );
   }
 
-  // ============================================================
   // UI
-  // ============================================================
 
   Widget _buildMatieresGrid() {
     if (_chargementMatieres) {
@@ -259,7 +244,6 @@ class _GenerateQAScreenState extends State<GenerateQAScreen> {
     );
   }
 
-  /// Le bloc qui n'apparaît QUE si une matière a été choisie
   Widget _buildCoursSection() {
     if (_matiereSelectionnee == null) return const SizedBox.shrink();
 
