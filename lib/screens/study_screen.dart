@@ -22,7 +22,6 @@ class Matiere {
 }
 
 class StudyScreen extends StatefulWidget {
-  // statefulWidget parce que l'écran change pendant son utilisation
   const StudyScreen({super.key});
 
   @override

@@ -36,9 +36,9 @@ class _AiTutorInsightCardState extends State<AiTutorInsightCard> {
     _detecterPointFaible();
   }
 
-  // On regarde les tentatives de quiz récentes de l'utilisateur,
-  // on calcule le pourcentage de réussite par matière, et on retient
-  // la matière avec la moyenne la plus basse (le "point faible").
+  //1- On regarde les tentatives de quiz récentes de l'utilisateur,
+  //2- on calcule le pourcentage de réussite par matière, et on retient
+  //3- la matière avec la moyenne la plus basse (le "point faible").
   Future<void> _detecterPointFaible() async {
     final user = supabase.auth.currentUser;
     if (user == null) {
@@ -109,8 +109,6 @@ class _AiTutorInsightCardState extends State<AiTutorInsightCard> {
         _chargement = false;
       });
     } catch (_) {
-      // Si la requête échoue (ex: pas encore de quiz passé), on masque
-      // simplement la carte plutôt que de bloquer l'écran.
       if (mounted) setState(() => _chargement = false);
     }
   }
@@ -143,8 +141,6 @@ class _AiTutorInsightCardState extends State<AiTutorInsightCard> {
 
   @override
   Widget build(BuildContext context) {
-    // Rien à afficher tant qu'on charge ou si l'utilisateur n'a pas
-    // encore assez d'historique de quiz pour dégager un point faible.
     if (_chargement) return const SizedBox.shrink();
     final insight = _insight;
     if (insight == null) return const SizedBox.shrink();

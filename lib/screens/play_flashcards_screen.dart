@@ -5,7 +5,6 @@ import 'chat_screen.dart';
 import 'plan_screen.dart';
 import 'profile_screen.dart';
 
-/// Modèle d'une flashcard (correspond à la table flashcards)
 class Flashcard {
   final String id;
   final String term;
@@ -93,8 +92,6 @@ class _FlashcardPlayScreenState extends State<FlashcardPlayScreen> {
     setState(() => _retournee = !_retournee);
   }
 
-  // L'utilisateur ne juge s'il connaît la carte qu'une fois qu'il a vu la
-  // définition (== la carte a été retournée au moins une fois).
   void _repondre(bool connue) {
     if (!_retournee) return;
 
@@ -135,8 +132,6 @@ class _FlashcardPlayScreenState extends State<FlashcardPlayScreen> {
           'finished_at': DateTime.now().toIso8601String(),
         });
       } catch (_) {
-        // On n'empêche pas l'utilisateur de voir son résultat même si
-        // l'enregistrement échoue (ex: pas de réseau).
       }
     }
 
@@ -152,10 +147,6 @@ class _FlashcardPlayScreenState extends State<FlashcardPlayScreen> {
       _sessionTerminee = false;
     });
   }
-
-  // ============================================================
-  // UI
-  // ============================================================
 
   Widget _buildHeader() {
     return Row(

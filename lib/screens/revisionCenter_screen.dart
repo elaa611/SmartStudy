@@ -269,9 +269,6 @@ class _RevisionScreenState extends State<RevisionScreen> {
                       height: 40,
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          // Ce screen n'a pas de matière déjà choisie -> on ouvre
-                          // GenerateQuizScreen qui gère lui-même les 2 étapes :
-                          // 1) choisir la matière  2) choisir les cours de cette matière
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -442,9 +439,6 @@ class _RevisionScreenState extends State<RevisionScreen> {
                       height: 40,
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          // Ce screen n'a pas de matière déjà choisie -> on ouvre
-                          // GenerateQAScreen qui gère lui-même les 2 étapes :
-                          // 1) choisir la matière  2) choisir les cours de cette matière
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -530,9 +524,6 @@ class _RevisionScreenState extends State<RevisionScreen> {
                       height: 40,
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          // Ce screen n'a pas de matière déjà choisie -> on ouvre
-                          // GenerateQAScreen qui gère lui-même les 2 étapes :
-                          // 1) choisir la matière  2) choisir les cours de cette matière
                           Navigator.push(
                             context,
                             MaterialPageRoute(

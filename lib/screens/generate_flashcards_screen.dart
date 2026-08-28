@@ -16,10 +16,9 @@ class Matiere {
   });
 }
 
-/// Modèle pour représenter un document/cours sélectionnable
 class Cours {
-  final String id; // uuid de documents.id
-  final String nom; // documents.file_name
+  final String id; 
+  final String nom;
   final String extension;
   final String extractionStatus;
 
@@ -34,7 +33,14 @@ class Cours {
 }
 
 class GenerateFlashcardsScreen extends StatefulWidget {
-  const GenerateFlashcardsScreen({super.key});
+  final int? initialSubjectId;
+  final List<String>? initialDocumentIds;
+
+  const GenerateFlashcardsScreen({
+    super.key,
+    this.initialSubjectId,
+    this.initialDocumentIds,
+  });
 
   @override
   State<GenerateFlashcardsScreen> createState() => _GenerateFlashcardsScreenState();
@@ -47,17 +53,14 @@ class _GenerateFlashcardsScreenState extends State<GenerateFlashcardsScreen> {
 
   final supabase = Supabase.instance.client;
 
-  // ---- Étape "matières" ----
   final List<Matiere> _matieres = [];
   Matiere? _matiereSelectionnee;
   bool _chargementMatieres = true;
 
-  // ---- Étape "cours" (dépend de la matière choisie) ----
   final List<Cours> _cours = [];
   final Set<String> _coursSelectionnes = {}; // ids des documents cochés
   bool _chargementCours = false;
 
-  // ---- Paramètres des flashcards ----
   int _nbCartes = 20;
 
   bool _generationEnCours = false;
@@ -68,9 +71,7 @@ class _GenerateFlashcardsScreenState extends State<GenerateFlashcardsScreen> {
     _chargerMatieres();
   }
 
-  // ============================================================
   // ÉTAPE 1 : charger les matières de l'utilisateur
-  // ============================================================
   Future<void> _chargerMatieres() async {
     final user = supabase.auth.currentUser;
     if (user == null) return;
@@ -97,13 +98,28 @@ class _GenerateFlashcardsScreenState extends State<GenerateFlashcardsScreen> {
         );
       _chargementMatieres = false;
     });
+
+    // Pré-sélection éventuelle (venant de la carte "AI Tutor Insight" par ex.)
+    if (widget.initialSubjectId != null) {
+      final match = _matieres.where((m) => m.id == widget.initialSubjectId).toList();
+      if (match.isNotEmpty) {
+        await _selectionnerMatiere(match.first);
+        if (widget.initialDocumentIds != null && mounted) {
+          setState(() {
+            _coursSelectionnes
+              ..clear()
+              ..addAll(
+                widget.initialDocumentIds!.where(
+                  (id) => _cours.any((c) => c.id == id && c.estExploitable),
+                ),
+              );
+          });
+        }
+      }
+    }
   }
 
-  // ============================================================
   // ÉTAPE 2 : quand l'utilisateur choisit une matière -> charger SES cours
-  // On ne prend que les documents dont l'extraction du texte est terminée
-  // (extraction_status = 'completed'), car l'IA a besoin du texte, pas du PDF brut.
-  // ============================================================
   Future<void> _selectionnerMatiere(Matiere matiere) async {
     final user = supabase.auth.currentUser;
     if (user == null) return;
@@ -150,9 +166,7 @@ class _GenerateFlashcardsScreenState extends State<GenerateFlashcardsScreen> {
     });
   }
 
-  // ============================================================
   // ÉTAPE 3 : appeler l'Edge Function Supabase pour générer les flashcards
-  // ============================================================
   Future<void> _genererFlashcards() async {
     if (_matiereSelectionnee == null) {
       _showError('Choisis une matière');
@@ -209,9 +223,7 @@ class _GenerateFlashcardsScreenState extends State<GenerateFlashcardsScreen> {
     );
   }
 
-  // ============================================================
   // UI
-  // ============================================================
 
   Widget _buildMatieresGrid() {
     if (_chargementMatieres) {

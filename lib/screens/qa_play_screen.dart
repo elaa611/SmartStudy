@@ -5,7 +5,6 @@ import 'chat_screen.dart';
 import 'plan_screen.dart';
 import 'profile_screen.dart';
 
-/// Modèle d'une question/réponse (correspond à la table qa_items)
 class QAItem {
   final String id;
   final String question;
@@ -116,8 +115,7 @@ class _QAPlayScreenState extends State<QAPlayScreen> {
           'finished_at': DateTime.now().toIso8601String(),
         });
       } catch (_) {
-        // On n'empêche pas l'utilisateur de voir la fin de session
-        // même si l'enregistrement échoue (ex: pas de réseau).
+        // On n'empêche pas l'utilisateur de voir la fin de session même si l'enregistrement échoue
       }
     }
 
@@ -131,10 +129,6 @@ class _QAPlayScreenState extends State<QAPlayScreen> {
       _sessionTerminee = false;
     });
   }
-
-  // ============================================================
-  // UI
-  // ============================================================
 
   Widget _buildHeader() {
     return Row(

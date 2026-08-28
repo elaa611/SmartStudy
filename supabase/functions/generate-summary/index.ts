@@ -27,9 +27,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // ------------------------------------------------------------
     // 1) Client Supabase "au nom de l'utilisateur" (respecte la RLS)
-    // ------------------------------------------------------------
     const authHeader = req.headers.get('Authorization')!
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
@@ -48,9 +46,7 @@ Deno.serve(async (req) => {
       })
     }
 
-    // ------------------------------------------------------------
     // 2) Lire les paramètres envoyés par Flutter (GenerateSummaryScreen)
-    // ------------------------------------------------------------
     const body = await req.json()
     const subjectId = body.subject_id as number | undefined
     const documentIds = body.document_ids as string[] | undefined
@@ -63,11 +59,7 @@ Deno.serve(async (req) => {
       })
     }
 
-    // ------------------------------------------------------------
     // 3) Récupérer le texte déjà extrait des documents choisis
-    //    (la RLS garantit que ce sont bien SES documents ; on double
-    //    vérifie quand même avec .eq('user_id', user.id))
-    // ------------------------------------------------------------
     const { data: documents, error: docsError } = await supabase
       .from('documents')
       .select('id, file_name, extracted_text, extraction_status')
@@ -94,9 +86,7 @@ Deno.serve(async (req) => {
       )
     }
 
-    // ------------------------------------------------------------
     // 4) Appeler Gemini pour générer le résumé structuré
-    // ------------------------------------------------------------
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY')!
     const prompt =
       `You are an educational assistant. Based ONLY on the course content below ` +
@@ -174,9 +164,7 @@ Deno.serve(async (req) => {
       throw new Error("Gemini n'a renvoyé aucun résumé exploitable")
     }
 
-    // ------------------------------------------------------------
     // 5) Sauvegarder le résumé (table `summaries`, voir schema_additions.sql)
-    // ------------------------------------------------------------
     const { data: summary, error: insertError } = await supabase
       .from('summaries')
       .insert({

@@ -12,11 +12,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // ------------------------------------------------------------
     // 1) Lire les paramètres envoyés par Flutter (noms alignés avec
-    //    generate_quiz_screen.dart : subject_id, document_ids,
-    //    nb_questions, difficulty, subject_name)
-    // ------------------------------------------------------------
     const { subject_id, document_ids, nb_questions, difficulty, subject_name } =
       await req.json();
 
@@ -60,11 +56,7 @@ Deno.serve(async (req) => {
     const { data: { user } } = await supabaseClient.auth.getUser();
     if (!user) throw new Error("Non authentifié");
 
-    // ------------------------------------------------------------
     // 2) Récupérer le texte extrait des documents sélectionnés
-    //    (c'est ce qui manquait : sans ça, le quiz ne se basait pas
-    //    sur les cours de l'utilisateur)
-    // ------------------------------------------------------------
     const { data: documents, error: docsError } = await supabaseClient
       .from("documents")
       .select("id, file_name, extracted_text")
@@ -87,9 +79,7 @@ Deno.serve(async (req) => {
       .join("\n\n")
       .slice(0, MAX_CHARS);
 
-    // ------------------------------------------------------------
     // 3) Créer le quiz en statut "generating"
-    // ------------------------------------------------------------
     const { data: quiz, error: quizError } = await supabaseClient
       .from("quizzes")
       .insert({
@@ -105,9 +95,7 @@ Deno.serve(async (req) => {
 
     if (quizError) throw quizError;
 
-    // ------------------------------------------------------------
     // 4) Appeler Gemini pour générer les questions
-    // ------------------------------------------------------------
 
     const prompt = `You are an educational quiz generator.
 
@@ -230,12 +218,7 @@ ${texteCombine}`;
       );
     }
 
-    // ------------------------------------------------------------
     // 5) Insérer les questions générées
-    //    IMPORTANT : la colonne s'appelle "correct_index" (et non
-    //    "correct_answer_index") car c'est ce que lit
-    //    QuizQuestion.fromMap dans quiz_play_screen.dart
-    // ------------------------------------------------------------
     const questionsToInsert = questions.map((q: any, index: number) => ({
       quiz_id: quiz.id,
       question_text: q.question,
@@ -251,9 +234,7 @@ ${texteCombine}`;
 
     if (insertError) throw insertError;
 
-    // ------------------------------------------------------------
     // 6) Tracer quels documents ont servi (table de liaison)
-    // ------------------------------------------------------------
     const liaisons = document_ids.map((docId: string) => ({
       quiz_id: quiz.id,
       document_id: docId,
@@ -267,9 +248,7 @@ ${texteCombine}`;
       throw linkError;
     }
 
-    // ------------------------------------------------------------
     // 7) Marquer le quiz comme prêt
-    // ------------------------------------------------------------
     const { error: updateError } = await supabaseClient
       .from("quizzes")
       .update({ status: "ready" })
@@ -279,11 +258,7 @@ ${texteCombine}`;
       throw updateError;
     }
 
-    // ------------------------------------------------------------
     // 8) Répondre à Flutter avec l'id du quiz créé
-    //    (quiz_id en snake_case, comme le lit generate_quiz_screen.dart :
-    //    data['quiz_id'])
-    // ------------------------------------------------------------
     return new Response(
       JSON.stringify({ quiz_id: quiz.id }),
       {

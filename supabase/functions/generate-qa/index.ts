@@ -14,11 +14,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // ------------------------------------------------------------
-    // 1) Lire les paramètres envoyés par Flutter (noms alignés avec
-    //    generate_qa_screen.dart : subject_id, document_ids,
-    //    nb_questions, subject_name)
-    // ------------------------------------------------------------
+    // 1) Lire les paramètres envoyés par Flutter
     const { subject_id, document_ids, nb_questions, subject_name } =
       await req.json();
 
@@ -46,9 +42,7 @@ Deno.serve(async (req) => {
     const { data: { user } } = await supabaseClient.auth.getUser();
     if (!user) throw new Error("Non authentifié");
 
-    // ------------------------------------------------------------
     // 2) Récupérer le texte extrait des documents sélectionnés
-    // ------------------------------------------------------------
     const { data: documents, error: docsError } = await supabaseClient
       .from("documents")
       .select("id, file_name, extracted_text")
@@ -80,9 +74,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    // ------------------------------------------------------------
     // 3) Créer le set de Q/A en statut "generating"
-    // ------------------------------------------------------------
     const { data: qaSet, error: setError } = await supabaseClient
       .from("qa_sets")
       .insert({
@@ -97,9 +89,7 @@ Deno.serve(async (req) => {
 
     if (setError) throw setError;
 
-    // ------------------------------------------------------------
     // 4) Appeler Gemini pour générer les questions/réponses
-    // ------------------------------------------------------------
     const prompt = `You are an educational assistant generating open-ended review questions.
 
 Based ONLY on the course content provided below, generate exactly ${nb_questions} question/answer pairs
@@ -184,9 +174,7 @@ ${texteCombine}`;
       throw new Error('La réponse Gemini ne contient pas de tableau "questions"');
     }
 
-    // ------------------------------------------------------------
     // 5) Insérer les questions/réponses générées
-    // ------------------------------------------------------------
     const itemsToInsert = questions.map((q: any, index: number) => ({
       set_id: qaSet.id,
       question: q.question,
@@ -200,9 +188,7 @@ ${texteCombine}`;
 
     if (insertError) throw insertError;
 
-    // ------------------------------------------------------------
     // 6) Tracer quels documents ont servi (table de liaison)
-    // ------------------------------------------------------------
     const liaisons = document_ids.map((docId: string) => ({
       qa_set_id: qaSet.id,
       document_id: docId,
@@ -214,9 +200,7 @@ ${texteCombine}`;
 
     if (linkError) throw linkError;
 
-    // ------------------------------------------------------------
     // 7) Marquer le set comme prêt
-    // ------------------------------------------------------------
     const { error: updateError } = await supabaseClient
       .from("qa_sets")
       .update({ status: "ready" })
@@ -224,11 +208,7 @@ ${texteCombine}`;
 
     if (updateError) throw updateError;
 
-    // ------------------------------------------------------------
     // 8) Répondre à Flutter avec l'id du set créé
-    //    (qa_set_id en snake_case, comme le lit generate_qa_screen.dart :
-    //    data['qa_set_id'])
-    // ------------------------------------------------------------
     return new Response(
       JSON.stringify({ qa_set_id: qaSet.id }),
       {

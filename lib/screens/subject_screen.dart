@@ -23,7 +23,6 @@ class SubjectScreen extends StatefulWidget {
 }
 
 class _SubjectScreenState extends State<SubjectScreen> {
-  // Il vaut mieux stocker le nom + le chemin + l'extension pour afficher la bonne icône plus tard
   final List<Map<String, String>> _courseFiles = [];
 
   final TextEditingController _searchController = TextEditingController();
@@ -53,10 +52,7 @@ class _SubjectScreenState extends State<SubjectScreen> {
         .from('documents')
         .select()
         .eq('subject_id', widget.subjectId) // lien fiable par clé étrangère
-        .eq(
-          'user_id',
-          user.id,
-        ) // sécurité supplémentaire : jamais les docs d'un autre user
+        .eq('user_id', user.id) // jamais les docs d'un autre user
         .order('created_at', ascending: false);
 
     if (!mounted) return;
@@ -168,20 +164,16 @@ class _SubjectScreenState extends State<SubjectScreen> {
       });
 
       // 4. Déclencher l'extraction du texte en arrière-plan.
-      //    On ne fait PAS de "await" ici : on ne bloque pas l'utilisateur,
-      //    l'extraction se fait pendant qu'il continue à utiliser l'app.
-      //    (le cours restera juste grisé dans GenerateQuizScreen tant que
-      //    extraction_status != 'completed')  
       try {
-  final response = await supabase.functions.invoke(
-    'extract-text',
-    body: {'document_id': inserted['id']},
-  );
+        final response = await supabase.functions.invoke(
+          'extract-text',
+          body: {'document_id': inserted['id']},
+        );
 
-  print('EXTRACT TEXT RESPONSE = ${response.data}');
-} catch (e) {
-  print('EXTRACT TEXT ERROR = $e');
-}
+        print('EXTRACT TEXT RESPONSE = ${response.data}');
+      } catch (e) {
+        print('EXTRACT TEXT ERROR = $e');
+      }
     } on StorageException catch (e) {
       _showError('Erreur upload : ${e.message}');
     } catch (e) {
@@ -308,30 +300,14 @@ class _SubjectScreenState extends State<SubjectScreen> {
     try {
       final supabase = Supabase.instance.client;
 
-      debugPrint('==============================');
-      debugPrint('OPEN FILE');
-      debugPrint('FILE PATH = $filePath');
-      debugPrint('BUCKET = course-documents');
-
       final signedUrl = await supabase.storage
           .from('course-documents')
           .createSignedUrl(filePath, 3600);
 
-      debugPrint('SIGNED URL = $signedUrl');
-
       final uri = Uri.parse(signedUrl);
 
       await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } on StorageException catch (e) {
-      debugPrint('==============================');
-      debugPrint('STORAGE ERROR');
-      debugPrint('MESSAGE = ${e.message}');
-      debugPrint('STATUS = ${e.statusCode}');
-      debugPrint('ERROR = $e');
-
-      _showError('Erreur Storage : ${e.message}');
-    } catch (e) {
-      debugPrint('OPEN FILE ERROR = $e');
+    }catch (e) {
       _showError('Erreur : $e');
     }
   }

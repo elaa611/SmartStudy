@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'mock_exam_play_screen.dart';
 
-/// Modèle simple pour représenter une matière (identique aux autres écrans "generate_*")
 class Matiere {
   final int id;
   final String nom;
@@ -17,10 +16,9 @@ class Matiere {
   });
 }
 
-/// Modèle pour représenter un document/cours sélectionnable
 class Cours {
-  final String id; // uuid de documents.id
-  final String nom; // documents.file_name
+  final String id; 
+  final String nom; 
   final String extension;
   final String extractionStatus;
 
@@ -35,10 +33,6 @@ class Cours {
 }
 
 class GenerateMockExamScreen extends StatefulWidget {
-  /// Optionnel : permet de pré-sélectionner une matière (par ex. depuis
-  /// la carte "AI Tutor Insight" -> "Start Mock Exam" sur le point faible
-  /// détecté de l'utilisateur), et éventuellement des cours précis
-  /// (par ex. depuis SummaryResultScreen).
   final int? initialSubjectId;
   final List<String>? initialDocumentIds;
 
@@ -59,17 +53,14 @@ class _GenerateMockExamScreenState extends State<GenerateMockExamScreen> {
 
   final supabase = Supabase.instance.client;
 
-  // ---- Étape "matières" ----
   final List<Matiere> _matieres = [];
   Matiere? _matiereSelectionnee;
   bool _chargementMatieres = true;
 
-  // ---- Étape "cours" (dépend de la matière choisie) ----
   final List<Cours> _cours = [];
   final Set<String> _coursSelectionnes = {}; // ids des documents cochés
   bool _chargementCours = false;
 
-  // ---- Paramètres de l'examen blanc ----
   int _nbQuestions = 20;
   int _dureeMinutes = 30;
 
@@ -81,9 +72,7 @@ class _GenerateMockExamScreenState extends State<GenerateMockExamScreen> {
     _chargerMatieres();
   }
 
-  // ============================================================
   // ÉTAPE 1 : charger les matières de l'utilisateur
-  // ============================================================
   Future<void> _chargerMatieres() async {
     final user = supabase.auth.currentUser;
     if (user == null) return;
@@ -131,11 +120,9 @@ class _GenerateMockExamScreenState extends State<GenerateMockExamScreen> {
     }
   }
 
-  // ============================================================
   // ÉTAPE 2 : quand l'utilisateur choisit une matière -> charger SES cours
   // On ne prend que les documents dont l'extraction du texte est terminée
   // (extraction_status = 'completed'), car l'IA a besoin du texte, pas du PDF brut.
-  // ============================================================
   Future<void> _selectionnerMatiere(Matiere matiere) async {
     final user = supabase.auth.currentUser;
     if (user == null) return;
@@ -182,9 +169,7 @@ class _GenerateMockExamScreenState extends State<GenerateMockExamScreen> {
     });
   }
 
-  // ============================================================
   // ÉTAPE 3 : appeler l'Edge Function Supabase pour générer l'examen blanc
-  // ============================================================
   Future<void> _genererExamen() async {
     if (_matiereSelectionnee == null) {
       _showError('Choisis une matière');
@@ -242,10 +227,6 @@ class _GenerateMockExamScreenState extends State<GenerateMockExamScreen> {
       SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
-
-  // ============================================================
-  // UI
-  // ============================================================
 
   Widget _buildMatieresGrid() {
     if (_chargementMatieres) {

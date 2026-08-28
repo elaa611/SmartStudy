@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Modèle d'une question de quiz (correspond à la table quiz_questions)
 class QuizQuestion {
   final String id;
   final String questionText;
@@ -55,7 +54,7 @@ class _QuizPlayScreenState extends State<QuizPlayScreen> {
 
   int _indexActuel = 0;
   int? _optionChoisie; // index de l'option choisie pour la question actuelle
-  bool _reponseValidee = false; // true dès qu'on a choisi une réponse (affiche le feedback)
+  bool _reponseValidee = false; // true dès qu'on a choisi une réponse
   int _score = 0;
 
   bool _quizTermine = false;
@@ -76,7 +75,6 @@ class _QuizPlayScreenState extends State<QuizPlayScreen> {
           .single();
 
       // Toutes les questions du quiz, triées par order_index
-      // (ordre choisi lors de la génération, cf. Edge Function generate-quiz)
       final data = await supabase
           .from('quiz_questions')
           .select()
@@ -100,9 +98,7 @@ class _QuizPlayScreenState extends State<QuizPlayScreen> {
     }
   }
 
-  // ============================================================
   // ÉTAPE 2 : logique de réponse
-  // ============================================================
   void _choisirOption(int index) {
     if (_reponseValidee) return; // on ne peut pas changer après validation
 
@@ -131,7 +127,7 @@ class _QuizPlayScreenState extends State<QuizPlayScreen> {
     });
   }
 
-  // ÉTAPE 3 : à la fin -> enregistrer le score dans quiz_attempts
+  // ÉTAPE 3 : à la fin , on va enregistrer le score dans quiz_attempts
   Future<void> _terminerQuiz() async {
     setState(() {
       _quizTermine = true;
@@ -148,17 +144,13 @@ class _QuizPlayScreenState extends State<QuizPlayScreen> {
           'finished_at': DateTime.now().toIso8601String(),
         });
       } catch (_) {
-        // On n'empêche pas l'utilisateur de voir son score
-        // même si l'enregistrement échoue (ex: pas de réseau).
       }
     }
 
     if (mounted) setState(() => _sauvegardeEnCours = false);
   }
 
-  // ============================================================
   // UI
-  // ============================================================
 
   Widget _buildOption(QuizQuestion question, int index) {
     final bool estChoisie = _optionChoisie == index;

@@ -7,7 +7,6 @@ import 'plan_screen.dart';
 import 'profile_screen.dart';
 import 'generate_quiz_screen.dart';
 
-/// Modèle d'un résumé (correspond à la table `summaries`)
 class Summary {
   final String id;
   final int subjectId;
@@ -141,14 +140,6 @@ class _SummaryResultScreenState extends State<SummaryResultScreen> {
     );
   }
 
-  void _partagerResume() {
-    // Pas de dépendance de partage native dans le projet pour l'instant :
-    // on copie le contenu et on informe l'utilisateur.
-    _copierResume();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Sharing is coming soon — summary copied instead')),
-    );
-  }
 
   Future<void> _ajouterAuPlanner() async {
     final resume = _resume;
@@ -218,10 +209,6 @@ class _SummaryResultScreenState extends State<SummaryResultScreen> {
           icon: const Icon(Icons.copy_outlined, color: primaryNavy),
           onPressed: _copierResume,
         ),
-        IconButton(
-          icon: const Icon(Icons.share_outlined, color: primaryNavy),
-          onPressed: _partagerResume,
-        ),
       ],
     );
   }
@@ -256,7 +243,7 @@ class _SummaryResultScreenState extends State<SummaryResultScreen> {
   Widget _buildKeyIdeas(Summary resume) {
     if (resume.keyIdeas.isEmpty) return const SizedBox.shrink();
     return _buildSectionCard(
-      title: '💡 Key Ideas',
+      title: ' Key Ideas',
       background: const Color(0xFFF3F5F9),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -281,7 +268,7 @@ class _SummaryResultScreenState extends State<SummaryResultScreen> {
   Widget _buildDefinitions(Summary resume) {
     if (resume.definitions.isEmpty) return const SizedBox.shrink();
     return _buildSectionCard(
-      title: '📖 Definitions',
+      title: ' Definitions',
       background: const Color(0xFFF3F5F9),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

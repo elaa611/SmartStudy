@@ -6,8 +6,6 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-// Même limite que generate-quiz / generate-summary : on ne renvoie pas des
-// dizaines de milliers de caractères de cours dans le prompt Gemini.
 const MAX_PROMPT_CHARS = 40_000;
 
 const GEMINI_MODEL = "gemini-3.5-flash-lite";
@@ -25,11 +23,6 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // ------------------------------------------------------------
-    // 1) Lire les paramètres envoyés par Flutter (noms alignés avec
-    //    generate_mock_exam_screen.dart : subject_id, document_ids,
-    //    nb_questions, duration_minutes, subject_name)
-    // ------------------------------------------------------------
     const {
       subject_id,
       document_ids,
@@ -82,11 +75,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ------------------------------------------------------------
     // 2) Récupérer le texte extrait des documents sélectionnés
-    //    (l'IA a besoin du texte, pas du PDF brut -> extraction_status
-    //    doit être 'completed', comme dans generate-quiz)
-    // ------------------------------------------------------------
     const { data: documents, error: docsError } = await supabaseClient
       .from("documents")
       .select("id, file_name, extracted_text, extraction_status")
@@ -121,10 +110,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    // ------------------------------------------------------------
     // 3) Créer l'examen blanc en statut "generating"
-    //    (table `mock_exams`, voir schema_additions.sql)
-    // ------------------------------------------------------------
     const { data: exam, error: examError } = await supabaseClient
       .from("mock_exams")
       .insert({
@@ -140,12 +126,7 @@ Deno.serve(async (req) => {
 
     if (examError) throw examError;
 
-    // ------------------------------------------------------------
     // 4) Appeler Gemini pour générer les questions
-    //    -> contrairement au quiz, un examen blanc simule un vrai
-    //    examen : on demande un mélange de difficultés (easy/medium/hard)
-    //    au lieu d'une difficulté unique choisie par l'utilisateur.
-    // ------------------------------------------------------------
     const prompt = `You are an educational exam generator.
 
 Based ONLY on the course content provided below, generate exactly ${nbQuestions} multiple-choice questions that simulate a REAL exam covering the material.
@@ -261,12 +242,7 @@ ${texteCombine}`;
       );
     }
 
-    // ------------------------------------------------------------
     // 5) Insérer les questions générées
-    //    IMPORTANT : les noms de colonnes correspondent à ce que lit
-    //    MockExamQuestion.fromMap dans mock_exam_play_screen.dart
-    //    (question_text, options, correct_index, explanation, order_index)
-    // ------------------------------------------------------------
     const questionsToInsert = questions.map((q: any, index: number) => ({
       exam_id: exam.id,
       question_text: q.question,
@@ -282,9 +258,7 @@ ${texteCombine}`;
 
     if (insertError) throw insertError;
 
-    // ------------------------------------------------------------
     // 6) Tracer quels documents ont servi (table de liaison)
-    // ------------------------------------------------------------
     const liaisons = document_ids.map((docId: string) => ({
       exam_id: exam.id,
       document_id: docId,
@@ -296,9 +270,7 @@ ${texteCombine}`;
 
     if (linkError) throw linkError;
 
-    // ------------------------------------------------------------
     // 7) Marquer l'examen comme prêt
-    // ------------------------------------------------------------
     const { error: updateError } = await supabaseClient
       .from("mock_exams")
       .update({ status: "ready" })
@@ -306,11 +278,7 @@ ${texteCombine}`;
 
     if (updateError) throw updateError;
 
-    // ------------------------------------------------------------
     // 8) Répondre à Flutter avec l'id de l'examen créé
-    //    (exam_id en snake_case, comme le lit generate_mock_exam_screen.dart :
-    //    data['exam_id'])
-    // ------------------------------------------------------------
     return new Response(
       JSON.stringify({ exam_id: exam.id }),
       {
