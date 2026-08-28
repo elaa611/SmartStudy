@@ -40,6 +40,33 @@ class _PlanScreenState extends State<PlanScreen> {
         ),
         centerTitle: true,
       ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Study Planner',
+              style: TextStyle(
+                fontSize: 36,
+                height: 1.1,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF002B5B),
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Plan your study time and stay on track !',
+              style: TextStyle(
+                fontFamily: 'Lora',
+                fontSize: 17,
+                fontWeight: FontWeight(500),
+                fontStyle: FontStyle.italic
+              ),
+            ),
+          ]
+        ),
+      ),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -65,7 +92,10 @@ class _PlanScreenState extends State<PlanScreen> {
                 );
               }
               if (index == 2) {
-                showChatModal(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ChatModal()),
+                );
               }
               if (index == 4) {
                 Navigator.push(

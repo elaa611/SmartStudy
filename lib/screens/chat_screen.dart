@@ -22,7 +22,7 @@ class _ChatModalState extends State<ChatModal> {
 
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final List<_ChatMessage> _messages = const [
+  final List<_ChatMessage> _messages = [
     _ChatMessage(text: 'Bonjour! Je suis ton assistant SmartStudy.', fromUser: false),
   ];
 
@@ -250,4 +250,4 @@ Future<void> showChatModal(BuildContext context) {
       );
     },
   );
-}
+}
