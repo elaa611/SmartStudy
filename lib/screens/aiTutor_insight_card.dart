@@ -3,6 +3,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'generate_flashcards_screen.dart';
 import 'generate_mock_exam_screen.dart';
 
+/// Carte "AI Tutor Insight" : détecte automatiquement la matière la plus
+/// faible de l'utilisateur (moyenne la plus basse sur ses derniers quiz)
+/// et propose deux actions rapides : réviser cette matière, ou se tester
+/// directement avec un examen blanc dessus.
+///
+/// À placer en haut de RevisionScreen (ou HomeScreen) :
+///   const AiTutorInsightCard(),
 class AiTutorInsightCard extends StatefulWidget {
   const AiTutorInsightCard({super.key});
 
@@ -45,7 +52,6 @@ class _AiTutorInsightCardState extends State<AiTutorInsightCard> {
       if (mounted) setState(() => _chargement = false);
       return;
     }
-    
 
     try {
       final data = await supabase
@@ -109,6 +115,7 @@ class _AiTutorInsightCardState extends State<AiTutorInsightCard> {
         _chargement = false;
       });
     } catch (_) {
+      // Si la requête échoue, on masque simplement la carte plutôt que de bloquer l'écran.
       if (mounted) setState(() => _chargement = false);
     }
   }
@@ -128,25 +135,17 @@ class _AiTutorInsightCardState extends State<AiTutorInsightCard> {
 
   void _demarrerExamenBlanc() {
     final insight = _insight;
-    if (insight == null) return;
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => GenerateMockExamScreen(
-          initialSubjectId: insight.subjectId,
+          initialSubjectId: insight?.subjectId,
         ),
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (_chargement) return const SizedBox.shrink();
-    final insight = _insight;
-    if (insight == null) return const SizedBox.shrink();
-
-    final pct = insight.averagePercent.round();
-
+  Widget _cardShell({required List<Widget> children}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -161,81 +160,133 @@ class _AiTutorInsightCardState extends State<AiTutorInsightCard> {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: const BoxDecoration(
-                  color: primaryNavy,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.smart_toy, color: Colors.white, size: 20),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'AI Tutor Insight',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: primaryNavy),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          RichText(
-            text: TextSpan(
-              style: TextStyle(fontSize: 14.5, height: 1.4, color: Colors.grey.shade800),
-              children: [
-                const TextSpan(text: 'You struggle with '),
-                TextSpan(
-                  text: insight.subjectName,
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: primaryNavy),
-                ),
-                TextSpan(
-                  text: '. Based on your recent quizzes (avg. $pct%), reviewing it today will '
-                      'yield the highest impact on your readiness score.',
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 18),
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton.icon(
-              onPressed: _reviserPointFaible,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryNavy,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              ),
-              icon: const Icon(Icons.edit_note, color: Colors.white, size: 20),
-              label: const Text(
-                'Review Weak Concepts',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton.icon(
-              onPressed: _demarrerExamenBlanc,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFEDEEF2),
-                elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              ),
-              icon: const Icon(Icons.assignment_outlined, color: primaryNavy, size: 20),
-              label: const Text(
-                'Start Mock Exam',
-                style: TextStyle(color: primaryNavy, fontWeight: FontWeight.bold, fontSize: 15),
-              ),
-            ),
-          ),
-        ],
-      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
     );
+  }
+
+  Widget _cardHeader() {
+    return Row(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: const BoxDecoration(color: primaryNavy, shape: BoxShape.circle),
+          child: const Icon(Icons.smart_toy, color: Colors.white, size: 20),
+        ),
+        const SizedBox(width: 12),
+        const Text(
+          'AI Tutor Insight',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: primaryNavy),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Pendant le chargement, on affiche déjà la coquille de la carte pour
+    // éviter que le bouton "Start Mock Exam" ne "saute" à l'écran.
+    if (_chargement) {
+      return _cardShell(children: [
+        _cardHeader(),
+        const SizedBox(height: 16),
+        const Center(child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 12),
+          child: CircularProgressIndicator(strokeWidth: 2),
+        )),
+      ]);
+    }
+
+    final insight = _insight;
+
+    // Pas encore assez d'historique de quiz pour dégager un point faible :
+    // on garde quand même la carte, avec un message générique et l'accès
+    // direct à l'examen blanc (seul point d'entrée de ce module ici).
+    if (insight == null) {
+      return _cardShell(children: [
+        _cardHeader(),
+        const SizedBox(height: 16),
+        Text(
+          'Take a few quizzes and I\'ll pinpoint exactly which topics to focus on. '
+          'In the meantime, you can jump straight into a mock exam to test yourself.',
+          style: TextStyle(fontSize: 14.5, height: 1.4, color: Colors.grey.shade800),
+        ),
+        const SizedBox(height: 18),
+        SizedBox(
+          width: double.infinity,
+          height: 48,
+          child: ElevatedButton.icon(
+            onPressed: _demarrerExamenBlanc,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryNavy,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
+            icon: const Icon(Icons.assignment_outlined, color: Colors.white, size: 20),
+            label: const Text(
+              'Start Mock Exam',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+            ),
+          ),
+        ),
+      ]);
+    }
+
+    final pct = insight.averagePercent.round();
+
+    return _cardShell(children: [
+      _cardHeader(),
+      const SizedBox(height: 16),
+      RichText(
+        text: TextSpan(
+          style: TextStyle(fontSize: 14.5, height: 1.4, color: Colors.grey.shade800),
+          children: [
+            const TextSpan(text: 'You struggle with '),
+            TextSpan(
+              text: insight.subjectName,
+              style: const TextStyle(fontWeight: FontWeight.bold, color: primaryNavy),
+            ),
+            TextSpan(
+              text: '. Based on your recent quizzes (avg. $pct%), reviewing it today will '
+                  'yield the highest impact on your readiness score.',
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 18),
+      SizedBox(
+        width: double.infinity,
+        height: 48,
+        child: ElevatedButton.icon(
+          onPressed: _reviserPointFaible,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: primaryNavy,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          ),
+          icon: const Icon(Icons.edit_note, color: Colors.white, size: 20),
+          label: const Text(
+            'Review Weak Concepts',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+        ),
+      ),
+      const SizedBox(height: 10),
+      SizedBox(
+        width: double.infinity,
+        height: 48,
+        child: ElevatedButton.icon(
+          onPressed: _demarrerExamenBlanc,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFEDEEF2),
+            elevation: 0,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          ),
+          icon: const Icon(Icons.assignment_outlined, color: primaryNavy, size: 20),
+          label: const Text(
+            'Start Mock Exam',
+            style: TextStyle(color: primaryNavy, fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+        ),
+      ),
+    ]);
   }
 }

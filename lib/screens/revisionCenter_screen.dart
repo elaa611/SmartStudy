@@ -8,7 +8,7 @@ import 'generate_quiz_screen.dart';
 import 'generate_flashcards_screen.dart';
 import 'generate_summary_screen.dart';
 import 'generate_qa_screen.dart';
-import 'generate_mock_exam_screen.dart';
+import 'aiTutor_insight_card.dart';
 
 class RevisionScreen extends StatefulWidget {
   // statefulWidget parce que l'écran change pendant son utilisation
@@ -137,6 +137,9 @@ class _RevisionScreenState extends State<RevisionScreen> {
                   color: primaryNavy,
                 ),
               ),
+
+              const SizedBox(height: 24),
+              const AiTutorInsightCard(),
 
               const SizedBox(height: 24),
               Container(
@@ -269,6 +272,9 @@ class _RevisionScreenState extends State<RevisionScreen> {
                       height: 40,
                       child: ElevatedButton.icon(
                         onPressed: () {
+                          // Ce screen n'a pas de matière déjà choisie -> on ouvre
+                          // GenerateQuizScreen qui gère lui-même les 2 étapes :
+                          // 1) choisir la matière  2) choisir les cours de cette matière
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -443,91 +449,6 @@ class _RevisionScreenState extends State<RevisionScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => const GenerateQAScreen(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          side: BorderSide(
-                            color: const Color.fromARGB(255, 81, 126, 238),
-                          ),
-                          backgroundColor: Color.fromARGB(255, 212, 224, 254),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          elevation: 3,
-                        ),
-                        icon: const Icon(
-                          Icons.auto_awesome,
-                          size: 17,
-                          color: accentBlue,
-                        ),
-                        label: const Text(
-                          'START',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                            color: accentBlue,
-                          ),
-                        ),
-                      ),
-                    ),
-                      ],
-                    ),
-                    
-                    const SizedBox(height: 5),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Option 5 : Mock EXAM ',
-                      style: TextStyle(
-                        fontFamily: 'Lora',
-                        fontSize: 24,
-                        fontWeight: FontWeight(800),
-                        color: Colors.indigoAccent,
-                      ),
-                    ),
-                    SizedBox(height: 15),
-                    const Text(
-                      'Get clear, personalized Questions & Answers and deepen your understanding of your courses.',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontStyle: FontStyle.italic,
-                        fontWeight: FontWeight(500),
-                        color: Color.fromARGB(255, 0, 0, 0),
-                      ),
-                    ),
-                    SizedBox(height: 15),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        SizedBox(
-                      width: 120,
-                      height: 40,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const GenerateMockExamScreen(),
                             ),
                           );
                         },
