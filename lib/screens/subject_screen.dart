@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:file_picker/file_picker.dart';
+import 'generate_summary_screen.dart';
 
 class SubjectScreen extends StatefulWidget {
   final int subjectId; // clé étrangère réelle vers subjects.id
@@ -23,6 +24,10 @@ class SubjectScreen extends StatefulWidget {
 }
 
 class _SubjectScreenState extends State<SubjectScreen> {
+  static const Color primaryNavy = Color(0xFF0B1F5C);
+  static const Color accentBlue = Color(0xFF2A6DF4);
+  static const Color background = Color(0xFFF3F5F9);
+
   final List<Map<String, String>> _courseFiles = [];
 
   final TextEditingController _searchController = TextEditingController();
@@ -398,7 +403,8 @@ class _SubjectScreenState extends State<SubjectScreen> {
                               ),
                             ],
                           ),
-                          child: Material(
+                          child: Column(children: [
+                          Material(
                             color: Colors.transparent,
                             borderRadius: BorderRadius.circular(18),
                             child: InkWell(
@@ -509,6 +515,52 @@ class _SubjectScreenState extends State<SubjectScreen> {
                               ),
                             ),
                           ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                      width: 200,
+                      height: 40,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const GenerateSummaryScreen(),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          side: BorderSide(
+                            color: const Color.fromARGB(255, 98, 122, 194),
+                          ),
+                          backgroundColor: Color.fromARGB(255, 237, 241, 250),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          elevation: 3,
+                        ),
+                        icon: const Icon(
+                          Icons.auto_awesome,
+                          size: 17,
+                          color:primaryNavy,
+                        ),
+                        label: const Text(
+                          'get a summary !',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color:primaryNavy,
+                          ),
+                        ),
+                      ),
+                    ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 15),
+                          ],
+                          )
                         );
                       },
                     ),
