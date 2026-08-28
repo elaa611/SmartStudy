@@ -199,7 +199,7 @@ class _GenerateMockExamScreenState extends State<GenerateMockExamScreen> {
 
     try {
       final response = await supabase.functions.invoke(
-        'generate-mock-exam',
+        'generate-mockExam',
         body: {
           'subject_id': _matiereSelectionnee!.id,
           'document_ids': _coursSelectionnes.toList(),
