@@ -50,6 +50,7 @@ class _PlanScreenState extends State<PlanScreen> {
               style: TextStyle(
                 fontSize: 36,
                 height: 1.1,
+                fontFamily: 'Lora',
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF002B5B),
               ),
