@@ -3,6 +3,7 @@ import 'chat_screen.dart';
 import 'home_screen.dart';
 import 'profile_screen.dart';
 import 'study_screen.dart';
+import 'chat_screen.dart';
 
 class PlanScreen extends StatefulWidget {
   const PlanScreen({super.key});
@@ -50,13 +51,20 @@ class _PlanScreenState extends State<PlanScreen> {
               style: TextStyle(
                 fontSize: 36,
                 height: 1.1,
+                fontFamily: 'Lora',
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF002B5B),
               ),
             ),
             const SizedBox(height: 12),
             const Text(
-              ''
+             'Plan your study time and stay on track !',
+              style: TextStyle(
+                fontFamily: 'Lora',
+                fontSize: 17,
+                fontWeight: FontWeight(500),
+                fontStyle: FontStyle.italic
+              ),
             ),
           ]
         ),
@@ -88,7 +96,7 @@ class _PlanScreenState extends State<PlanScreen> {
               if (index == 2) {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const ChatScreen()),
+                  MaterialPageRoute(builder: (context) => const ChatModal()),
                 );
               }
               if (index == 4) {

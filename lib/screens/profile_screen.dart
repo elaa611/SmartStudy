@@ -403,10 +403,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 );
               }
               if (index == 2) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ChatScreen()),
-                );
+                showChatModal(context);
               }
               if (index == 3) {
                 Navigator.push(

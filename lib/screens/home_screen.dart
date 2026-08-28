@@ -59,10 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               }
               if (index == 2) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ChatScreen()),
-                );
+                showChatModal(context);
               }
               if (index == 3) {
                 Navigator.push(
@@ -106,4 +103,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-}
+}

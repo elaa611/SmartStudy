@@ -531,10 +531,7 @@ class _StudyScreenState extends State<StudyScreen> {
                 );
               }
               if (index == 2) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ChatScreen()),
-                );
+                showChatModal(context);
               }
               if (index == 3) {
                 Navigator.push(
@@ -579,4 +576,4 @@ class _StudyScreenState extends State<StudyScreen> {
       ),
     );
   }
-}
+}

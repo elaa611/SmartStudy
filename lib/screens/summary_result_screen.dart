@@ -383,7 +383,7 @@ class _SummaryResultScreenState extends State<SummaryResultScreen> {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
             }
             if (index == 2) {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatScreen()));
+              showChatModal(context);
             }
             if (index == 3) {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const PlanScreen()));
@@ -436,4 +436,4 @@ class _SummaryResultScreenState extends State<SummaryResultScreen> {
       bottomNavigationBar: (_chargement || _erreur != null) ? null : _buildBottomNav(),
     );
   }
-}
+}
